@@ -205,7 +205,7 @@ func (m *Model) handleKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	key := msg.String()
 
 	switch key {
-	case "ctrl+c", "q":
+	case "ctrl+c", "ctrl+d", "q":
 		return m, tea.Quit
 	case "tab", "shift+tab":
 		m.toggleFocus()
