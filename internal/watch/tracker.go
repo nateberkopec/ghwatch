@@ -24,6 +24,37 @@ type TrackedRun struct {
 	ArchivedAt time.Time
 }
 
+// ExportState returns a snapshot of the tracker state for persistence.
+func (t *Tracker) ExportState() (active []*TrackedRun, activeOrder []int64, archived []*TrackedRun, archivedOrder []int64) {
+	activeCopy := make([]*TrackedRun, 0, len(t.active))
+	for _, run := range t.active {
+		activeCopy = append(activeCopy, run)
+	}
+
+	archivedCopy := make([]*TrackedRun, 0, len(t.archived))
+	for _, run := range t.archived {
+		archivedCopy = append(archivedCopy, run)
+	}
+
+	return activeCopy, slices.Clone(t.activeOrder), archivedCopy, slices.Clone(t.archivedOrder)
+}
+
+// ImportState restores tracker state from persistence data.
+func (t *Tracker) ImportState(active []*TrackedRun, activeOrder []int64, archived []*TrackedRun, archivedOrder []int64) {
+	t.active = make(map[int64]*TrackedRun, len(active))
+	for _, run := range active {
+		t.active[run.Run.ID] = run
+	}
+
+	t.archived = make(map[int64]*TrackedRun, len(archived))
+	for _, run := range archived {
+		t.archived[run.Run.ID] = run
+	}
+
+	t.activeOrder = slices.Clone(activeOrder)
+	t.archivedOrder = slices.Clone(archivedOrder)
+}
+
 // NewTracker creates a tracker with no runs.
 func NewTracker() *Tracker {
 	return &Tracker{

@@ -15,6 +15,7 @@ import (
 
 	"github.com/nateberkopec/2025-11-07-gogh/internal/githubclient"
 	"github.com/nateberkopec/2025-11-07-gogh/internal/githuburl"
+	"github.com/nateberkopec/2025-11-07-gogh/internal/persistence"
 	"github.com/nateberkopec/2025-11-07-gogh/internal/watch"
 )
 
@@ -105,9 +106,13 @@ func New(cfg Config) *Model {
 
 	sp := spinner.New(spinner.WithSpinner(spinner.Ellipsis))
 
+	tracker := watch.NewTracker()
+	if err := persistence.LoadTracker(tracker); err != nil {
+	}
+
 	return &Model{
 		client:       client,
-		tracker:      watch.NewTracker(),
+		tracker:      tracker,
 		pollInterval: pollInterval,
 		bellEnabled:  cfg.BellEnabled,
 		input:        ti,
@@ -206,6 +211,7 @@ func (m *Model) handleKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 
 	switch key {
 	case "ctrl+c", "ctrl+d", "q":
+		persistence.SaveTracker(m.tracker)
 		return m, tea.Quit
 	case "tab", "shift+tab":
 		m.toggleFocus()
@@ -300,6 +306,7 @@ func (m *Model) archiveSelected() {
 	}
 	m.tracker.Archive(run.Run.ID)
 	m.ensureSelectionBounds()
+	persistence.SaveTracker(m.tracker)
 	m.setStatus(fmt.Sprintf("Archived %s", runLabel(run.Run)), statusNeutral)
 }
 
@@ -310,6 +317,7 @@ func (m *Model) unarchiveSelected() tea.Cmd {
 	}
 	if ok := m.tracker.Unarchive(run.Run.ID); ok {
 		m.showArchived = false
+		persistence.SaveTracker(m.tracker)
 		m.setStatus(fmt.Sprintf("Restored %s", runLabel(run.Run)), statusSuccess)
 		return m.refreshCmd(false)
 	}
@@ -434,6 +442,7 @@ func (m *Model) absorbRuns(runs []githubclient.WorkflowRun, source githuburl.Par
 	if added {
 		m.selectedIndex = 0
 		m.scrollOffset = 0
+		persistence.SaveTracker(m.tracker)
 		m.setStatus(fmt.Sprintf("Watching %d run(s)", len(runs)), statusSuccess)
 	}
 	if shouldRing && m.bellEnabled {
