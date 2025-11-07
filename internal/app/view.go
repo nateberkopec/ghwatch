@@ -39,12 +39,12 @@ var tableColumns = []struct {
 	Weight float64
 	Min    int
 }{
-	{"", 0.08, 6},
-	{"Repo", 0.20, 14},
-	{"Owner", 0.14, 10},
+	{"", 0.05, 2},
+	{"Repo", 0.21, 14},
+	{"Owner", 0.15, 10},
 	{"Target", 0.18, 12},
 	{"Run", 0.20, 16},
-	{"Workflow", 0.20, 12},
+	{"Workflow", 0.21, 12},
 }
 
 func renderView(m *Model) string {

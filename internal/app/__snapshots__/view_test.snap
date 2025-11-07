@@ -1,8 +1,8 @@
 
 [TestViewSnapshot - 1]
-       │ Repo            │ Owner      │ Target        │ Run              │ Workflow       
-✅     │ web             │ example    │ main          │ lint             │ CI             
-⏳     │ api             │ example    │ PR #12        │ unit             │ CI             
+    │ Repo            │ Owner       │ Target        │ Run              │ Workflow         
+✅  │ web             │ example     │ main          │ lint             │ CI               
+⏳  │ api             │ example     │ PR #12        │ unit             │ CI               
                                                                                           
                                                                                           
                                                                                           
