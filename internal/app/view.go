@@ -216,7 +216,23 @@ func calculateColumnWidths(total int) []int {
 	if available < len(tableColumns) {
 		available = len(tableColumns)
 	}
+
+	// Calculate minimum required width
+	minRequired := 0
+	for _, col := range tableColumns {
+		minRequired += col.Min
+	}
+
 	widths := make([]int, len(tableColumns))
+
+	// If available space is less than minimum required, use minimum of 1 per column
+	if available < minRequired {
+		for i := range widths {
+			widths[i] = 1
+		}
+		return widths
+	}
+
 	sum := 0
 	for i, col := range tableColumns {
 		width := int(float64(available) * col.Weight)
@@ -228,10 +244,12 @@ func calculateColumnWidths(total int) []int {
 	}
 	// Adjust to match available width.
 	diff := available - sum
-	widths[len(widths)-1] += diff
+	if diff > 0 {
+		widths[len(widths)-1] += diff
+	}
 	for i, w := range widths {
-		if w < tableColumns[i].Min {
-			widths[i] = tableColumns[i].Min
+		if w < 1 {
+			widths[i] = 1
 		}
 	}
 	return widths
