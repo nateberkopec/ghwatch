@@ -61,17 +61,21 @@ file when using `mise`.
 
 ## Testing
 
-Unit/snapshot tests (no network):
+Unit/snapshot tests:
 
 ```bash
 go test ./...
 ```
 
-Integration tests (hit api.github.com, usually run manually):
+Integration tests (hit api.github.com):
 
 ```bash
 go test -tags=integration ./integration
 ```
+
+Integration tests automatically use `GITHUB_TOKEN`, `GH_TOKEN`, or `GH_PAT` environment
+variables if available. In CI, the tests run on every push using GitHub's auto-generated
+`GITHUB_TOKEN`.
 
 Snapshots live under `internal/app/__snapshots__` via
 [go-snaps](https://github.com/gkampitakis/go-snaps).
