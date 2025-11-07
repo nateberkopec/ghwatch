@@ -1,8 +1,8 @@
 
 [TestViewSnapshot - 1]
-Workflow       │ Run               │ Repo               │ Target         │ Status         
-CI             │ lint              │ example/web        │ main           │ Success        
-CI             │ unit              │ example/api        │ PR #12         │ Pending (in_pr…
+Status         │ Repo               │ Target         │ Run               │ Workflow       
+Success        │ example/web        │ main           │ lint              │ CI             
+Pending (in_p… │ example/api        │ PR #12         │ unit              │ CI             
                                                                                           
                                                                                           
                                                                                           

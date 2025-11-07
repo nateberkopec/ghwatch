@@ -39,11 +39,11 @@ var tableColumns = []struct {
 	Weight float64
 	Min    int
 }{
-	{"Workflow", 0.18, 12},
-	{"Run", 0.22, 16},
+	{"Status", 0.18, 14},
 	{"Repo", 0.24, 18},
 	{"Target", 0.18, 12},
-	{"Status", 0.18, 14},
+	{"Run", 0.22, 16},
+	{"Workflow", 0.18, 12},
 }
 
 func renderView(m *Model) string {
@@ -162,11 +162,11 @@ func tableHeaders() []string {
 
 func tableRowData(run *watch.TrackedRun) []string {
 	data := []string{
-		run.Run.WorkflowName,
-		run.Run.Name,
+		formatStatus(run.Run),
 		run.Run.RepoFullName,
 		run.Run.Target,
-		formatStatus(run.Run),
+		run.Run.Name,
+		run.Run.WorkflowName,
 	}
 	return data
 }
