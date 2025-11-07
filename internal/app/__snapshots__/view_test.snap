@@ -1,6 +1,5 @@
 
 [TestViewSnapshot - 1]
-GitHub Workflow Watcher — Mode: Active • Focus: List • Bell: 🔔                           
 Workflow       │ Run               │ Repo               │ Target         │ Status         
 CI             │ lint              │ example/web        │ main           │ Success        
 CI             │ unit              │ example/api        │ PR #12         │ Pending (in_pr…

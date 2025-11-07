@@ -52,7 +52,6 @@ func renderView(m *Model) string {
 	}
 
 	var out []string
-	out = append(out, renderHeader(m))
 	out = append(out, renderRunsTable(m))
 	statusLines := renderStatusArea(m)
 	out = append(out, statusLines...)
@@ -62,15 +61,11 @@ func renderView(m *Model) string {
 }
 
 func renderHeader(m *Model) string {
-	mode := "Active"
+	mode := "active"
 	if m.showArchived {
-		mode = "Archived"
+		mode = "archived"
 	}
-	focus := "List"
-	if m.focus == focusInput {
-		focus = "Input"
-	}
-	text := fmt.Sprintf("GitHub Workflow Watcher — Mode: %s • Focus: %s • Bell: %s", mode, focus, bellEmoji(m.bellEnabled))
+	text := fmt.Sprintf("filter: %s • bell: %s", mode, bellEmoji(m.bellEnabled))
 	return titleStyle.Width(m.width).Render(pad(text, m.width))
 }
 
