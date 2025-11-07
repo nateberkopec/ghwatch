@@ -233,6 +233,13 @@ func (m *Model) handleKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	}
 
 	switch key {
+	case "0", "1", "2", "3", "4", "5", "6", "7", "8", "9":
+		idx := int(key[0] - '0')
+		runs := m.tracker.VisibleRuns(m.showArchived)
+		if idx < len(runs) {
+			m.selectedIndex = idx
+			m.ensureSelectionBounds()
+		}
 	case "j", "down":
 		m.moveSelection(1)
 	case "k", "up":

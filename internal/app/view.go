@@ -39,12 +39,13 @@ var tableColumns = []struct {
 	Weight float64
 	Min    int
 }{
+	{"#", 0.03, 1},
 	{"", 0.05, 2},
-	{"Repo", 0.21, 14},
-	{"Owner", 0.15, 10},
-	{"Target", 0.18, 12},
+	{"Repo", 0.19, 14},
+	{"Owner", 0.14, 10},
+	{"Target", 0.17, 12},
 	{"Run", 0.20, 16},
-	{"Workflow", 0.21, 12},
+	{"Workflow", 0.22, 12},
 }
 
 func renderView(m *Model) string {
@@ -96,7 +97,7 @@ func renderRunsTable(m *Model) string {
 
 	for idx := start; idx < end; idx++ {
 		builder.WriteString("\n")
-		row := tableRowData(runs[idx])
+		row := tableRowData(runs[idx], idx)
 		rowStr := renderRow(row, widths, rowStyle)
 		if idx == m.selectedIndex && m.focus == focusRuns {
 			rowStr = selectedRowStyle.Width(m.width).Render(rowStr)
@@ -161,9 +162,14 @@ func tableHeaders() []string {
 	return titles
 }
 
-func tableRowData(run *watch.TrackedRun) []string {
+func tableRowData(run *watch.TrackedRun, idx int) []string {
 	owner, repo := splitRepo(run.Run.RepoFullName)
+	indexStr := ""
+	if idx < 10 {
+		indexStr = fmt.Sprintf("%d", idx)
+	}
 	data := []string{
+		indexStr,
 		formatStatus(run.Run),
 		repo,
 		owner,

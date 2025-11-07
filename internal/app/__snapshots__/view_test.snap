@@ -1,8 +1,9 @@
 
 [TestViewSnapshot - 1]
-    │ Repo            │ Owner       │ Target        │ Run              │ Workflow         
-✅  │ web             │ example     │ main          │ lint             │ CI               
-⏳  │ api             │ example     │ PR #12        │ unit             │ CI               
+#  │     │ Repo           │ Owner      │ Target       │ Run              │ Workflow       
+0  │ ✅  │ web            │ example    │ main         │ lint             │ CI             
+1  │ ⏳  │ api            │ example    │ PR #12       │ unit             │ CI             
+2  │ ⏳  │ ghwatch        │ nateberko… │ commit 4049… │ Merge pull requ… │ CI             
                                                                                           
                                                                                           
                                                                                           
@@ -18,7 +19,6 @@
                                                                                           
                                                                                           
                                                                                           
-Watching 2 run(s)                                                                         
 [tab] focus • [o] open • [a] archive/restore • [A] view archived • [b] bell • [q] quit    
 ╭──────────────────────────────────────────────────────────────────────────────────────────╮
 │ Paste a GitHub workflow/run URL                                                          │
