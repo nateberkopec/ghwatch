@@ -138,7 +138,7 @@ func renderStatusArea(m *Model) []string {
 
 	line1 := style.Width(m.width).Render(pad(msg, m.width))
 
-	help := "[tab] focus • [o] open • [a] archive/restore • [A] view archived • [b] bell"
+	help := "[tab] focus • [o] open • [a] archive/restore • [A] view archived • [b] bell • [q] quit"
 	line2 := helpStyle.Width(m.width).Render(pad(help, m.width))
 
 	return []string{line1, line2}

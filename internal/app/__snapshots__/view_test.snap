@@ -19,7 +19,7 @@ Pending (in_p… │ example/api        │ PR #12         │ unit             
                                                                                           
                                                                                           
 Watching 2 run(s)                                                                         
-[tab] focus • [o] open • [a] archive/restore • [A] view archived • [b] bell               
+[tab] focus • [o] open • [a] archive/restore • [A] view archived • [b] bell • [q] quit    
 ╭──────────────────────────────────────────────────────────────────────────────────────────╮
 │ Paste a GitHub workflow/run URL                                                          │
 ╰──────────────────────────────────────────────────────────────────────────────────────────╯
