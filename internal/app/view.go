@@ -39,11 +39,11 @@ var tableColumns = []struct {
 	Weight float64
 	Min    int
 }{
-	{"Status", 0.18, 14},
-	{"Repo", 0.24, 18},
-	{"Target", 0.18, 12},
-	{"Run", 0.22, 16},
-	{"Workflow", 0.18, 12},
+	{"Status", 0.08, 6},
+	{"Repo", 0.26, 18},
+	{"Target", 0.20, 12},
+	{"Run", 0.24, 16},
+	{"Workflow", 0.22, 12},
 }
 
 func renderView(m *Model) string {
@@ -172,18 +172,16 @@ func tableRowData(run *watch.TrackedRun) []string {
 }
 
 func formatStatus(run githubclient.WorkflowRun) string {
-	state := titleCase(string(run.Status))
-	if run.StatusDetail != "" && !strings.EqualFold(run.StatusDetail, string(run.Status)) {
-		state = fmt.Sprintf("%s (%s)", state, run.StatusDetail)
+	switch run.Status {
+	case githubclient.RunStatusSuccess:
+		return "✅"
+	case githubclient.RunStatusFailed:
+		return "❌"
+	case githubclient.RunStatusPending:
+		return "⏳"
+	default:
+		return "⏳"
 	}
-	ago := ""
-	if !run.LastUpdatedAt.IsZero() {
-		ago = humanizeAgo(time.Since(run.LastUpdatedAt))
-	}
-	if ago != "" {
-		return fmt.Sprintf("%s • %s", state, ago)
-	}
-	return state
 }
 
 func renderRow(cells []string, widths []int, style lipgloss.Style) string {
