@@ -39,11 +39,12 @@ var tableColumns = []struct {
 	Weight float64
 	Min    int
 }{
-	{"Status", 0.08, 6},
-	{"Repo", 0.26, 18},
-	{"Target", 0.20, 12},
-	{"Run", 0.24, 16},
-	{"Workflow", 0.22, 12},
+	{"", 0.08, 6},
+	{"Repo", 0.20, 14},
+	{"Owner", 0.14, 10},
+	{"Target", 0.18, 12},
+	{"Run", 0.20, 16},
+	{"Workflow", 0.20, 12},
 }
 
 func renderView(m *Model) string {
@@ -161,9 +162,11 @@ func tableHeaders() []string {
 }
 
 func tableRowData(run *watch.TrackedRun) []string {
+	owner, repo := splitRepo(run.Run.RepoFullName)
 	data := []string{
 		formatStatus(run.Run),
-		run.Run.RepoFullName,
+		repo,
+		owner,
 		run.Run.Target,
 		run.Run.Name,
 		run.Run.WorkflowName,
