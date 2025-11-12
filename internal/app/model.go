@@ -84,6 +84,10 @@ type Model struct {
 
 	listArea  area
 	inputArea area
+
+	history      []string
+	historyIndex int
+	tempInput    string
 }
 
 // New creates a Bubble Tea model for the watcher.
@@ -110,6 +114,11 @@ func New(cfg Config) *Model {
 	if err := persistence.LoadTracker(tracker); err != nil {
 	}
 
+	history, err := persistence.LoadHistory()
+	if err != nil {
+		history = []string{}
+	}
+
 	return &Model{
 		client:       client,
 		tracker:      tracker,
@@ -117,6 +126,8 @@ func New(cfg Config) *Model {
 		bellEnabled:  cfg.BellEnabled,
 		input:        ti,
 		spin:         sp,
+		history:      history,
+		historyIndex: len(history),
 	}
 }
 
@@ -212,6 +223,7 @@ func (m *Model) handleKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	switch key {
 	case "ctrl+c", "ctrl+d", "q":
 		persistence.SaveTracker(m.tracker)
+		persistence.SaveHistory(m.history)
 		return m, tea.Quit
 	case "tab", "shift+tab":
 		m.toggleFocus()
@@ -226,6 +238,12 @@ func (m *Model) handleKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		switch key {
 		case "enter":
 			return m.submitURL()
+		case "up":
+			m.navigateHistoryUp()
+			return m, nil
+		case "down":
+			m.navigateHistoryDown()
+			return m, nil
 		}
 		var cmd tea.Cmd
 		m.input, cmd = m.input.Update(msg)
@@ -292,6 +310,13 @@ func (m *Model) submitURL() (tea.Model, tea.Cmd) {
 		m.setStatus(err.Error(), statusError)
 		return m, nil
 	}
+
+	// Add to history (avoid duplicates of the most recent command)
+	if len(m.history) == 0 || m.history[len(m.history)-1] != value {
+		m.history = append(m.history, value)
+	}
+	m.historyIndex = len(m.history)
+	m.tempInput = ""
 
 	m.input.SetValue("")
 	m.pendingFetch = true
@@ -416,6 +441,42 @@ func (m *Model) setFocus(area focusArea) {
 		m.input.Focus()
 	} else {
 		m.input.Blur()
+	}
+}
+
+func (m *Model) navigateHistoryUp() {
+	if len(m.history) == 0 {
+		return
+	}
+
+	// Save current input if we're at the bottom
+	if m.historyIndex == len(m.history) {
+		m.tempInput = m.input.Value()
+	}
+
+	// Navigate up in history
+	if m.historyIndex > 0 {
+		m.historyIndex--
+		m.input.SetValue(m.history[m.historyIndex])
+		m.input.CursorEnd()
+	}
+}
+
+func (m *Model) navigateHistoryDown() {
+	if len(m.history) == 0 {
+		return
+	}
+
+	// Navigate down in history
+	if m.historyIndex < len(m.history) {
+		m.historyIndex++
+		if m.historyIndex == len(m.history) {
+			// Back to current input
+			m.input.SetValue(m.tempInput)
+		} else {
+			m.input.SetValue(m.history[m.historyIndex])
+		}
+		m.input.CursorEnd()
 	}
 }
 
