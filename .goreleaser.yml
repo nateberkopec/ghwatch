@@ -1,0 +1,100 @@
+version: 2
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: gogh
+    binary: gogh
+    main: ./cmd/gogh
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w
+      - -X main.version={{.Version}}
+      - -X main.commit={{.ShortCommit}}
+      - -X main.date={{.Date}}
+
+archives:
+  - id: default
+    format: tar.gz
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        format: zip
+    files:
+      - README.md
+      - LICENSE*
+
+checksum:
+  name_template: 'checksums.txt'
+
+snapshot:
+  version_template: "{{ incpatch .Version }}-next"
+
+changelog:
+  sort: asc
+  use: github
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+      - '^ci:'
+      - '^chore:'
+      - Merge pull request
+      - Merge branch
+
+release:
+  github:
+    owner: nateberkopec
+    name: ghwatch
+  draft: false
+  prerelease: auto
+  mode: replace
+  header: |
+    ## Installation
+
+    Download the appropriate binary for your platform from the assets below.
+
+    ### macOS
+
+    ```bash
+    # Intel
+    curl -L https://github.com/nateberkopec/ghwatch/releases/download/{{ .Tag }}/gogh_{{ .Version }}_darwin_amd64.tar.gz | tar xz
+    sudo mv gogh /usr/local/bin/
+
+    # Apple Silicon
+    curl -L https://github.com/nateberkopec/ghwatch/releases/download/{{ .Tag }}/gogh_{{ .Version }}_darwin_arm64.tar.gz | tar xz
+    sudo mv gogh /usr/local/bin/
+    ```
+
+    ### Linux
+
+    ```bash
+    # x86_64
+    curl -L https://github.com/nateberkopec/ghwatch/releases/download/{{ .Tag }}/gogh_{{ .Version }}_linux_amd64.tar.gz | tar xz
+    sudo mv gogh /usr/local/bin/
+
+    # ARM64
+    curl -L https://github.com/nateberkopec/ghwatch/releases/download/{{ .Tag }}/gogh_{{ .Version }}_linux_arm64.tar.gz | tar xz
+    sudo mv gogh /usr/local/bin/
+    ```
+
+    ### Windows
+
+    Download the `.zip` file for your architecture and extract the `gogh.exe` binary.
+
+  footer: |
+    ## Checksums
+
+    All binaries include SHA256 checksums in `checksums.txt`.
+
+    **Full Changelog**: https://github.com/nateberkopec/ghwatch/compare/{{ .PreviousTag }}...{{ .Tag }}

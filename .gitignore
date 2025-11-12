@@ -1,1 +1,8 @@
 .env
+
+# Binaries
+gogh
+gogh.exe
+
+# GoReleaser
+dist/

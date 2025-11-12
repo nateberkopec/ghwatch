@@ -6,20 +6,46 @@ table with live status updates.
 
 ## Requirements
 
-- Go 1.25+
-- macOS or Linux (URL opening uses `open` / `xdg-open`)
+- macOS, Linux, or Windows
 - Optional GitHub PAT for higher rate limits (`repo` + `workflow` scopes)
+- Go 1.25+ (only required if building from source)
 
 ## Quick Start
 
+### Install from Release
+
+Download the latest binary for your platform from the [releases page](https://github.com/nateberkopec/ghwatch/releases):
+
 ```bash
-# install tools (optional): mise use go@latest
-go run ./cmd/gogh
+# macOS (Apple Silicon)
+curl -L https://github.com/nateberkopec/ghwatch/releases/latest/download/gogh_darwin_arm64.tar.gz | tar xz
+sudo mv gogh /usr/local/bin/
+
+# macOS (Intel)
+curl -L https://github.com/nateberkopec/ghwatch/releases/latest/download/gogh_darwin_amd64.tar.gz | tar xz
+sudo mv gogh /usr/local/bin/
+
+# Linux (x86_64)
+curl -L https://github.com/nateberkopec/ghwatch/releases/latest/download/gogh_linux_amd64.tar.gz | tar xz
+sudo mv gogh /usr/local/bin/
+
+# Run it
+gogh
 ```
 
-Alternatively build once and keep the binary:
+### Install from Source
+
+If you have Go 1.25+ installed:
 
 ```bash
+go install github.com/nateberkopec/ghwatch/cmd/gogh@latest
+```
+
+Or build from the repository:
+
+```bash
+git clone https://github.com/nateberkopec/ghwatch.git
+cd ghwatch
 go build -o gogh ./cmd/gogh
 ./gogh
 ```
