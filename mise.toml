@@ -1,2 +1,5 @@
 [env]
 _.file = ".env"
+
+[tools]
+go = "latest"
