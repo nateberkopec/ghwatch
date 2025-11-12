@@ -84,6 +84,10 @@ type Model struct {
 
 	listArea  area
 	inputArea area
+
+	history      []string
+	historyIndex int
+	tempInput    string
 }
 
 // New creates a Bubble Tea model for the watcher.
@@ -110,6 +114,11 @@ func New(cfg Config) *Model {
 	if err := persistence.LoadTracker(tracker); err != nil {
 	}
 
+	history, err := persistence.LoadHistory()
+	if err != nil {
+		history = []string{}
+	}
+
 	return &Model{
 		client:       client,
 		tracker:      tracker,
@@ -117,6 +126,8 @@ func New(cfg Config) *Model {
 		bellEnabled:  cfg.BellEnabled,
 		input:        ti,
 		spin:         sp,
+		history:      history,
+		historyIndex: len(history),
 	}
 }
 
@@ -163,7 +174,15 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if msg.Err != nil {
 			m.setStatus(msg.Err.Error(), statusError)
 		}
+		// Absorb individual run refreshes (preserve existing sources)
 		cmd := m.absorbRuns(msg.Runs, githuburl.Parsed{})
+		// Absorb PR runs with their respective sources (for new runs)
+		for prSource, runs := range msg.PRRuns {
+			prCmd := m.absorbRuns(runs, prSource)
+			if prCmd != nil {
+				cmd = tea.Batch(cmd, prCmd)
+			}
+		}
 		return m, cmd
 	}
 
@@ -212,6 +231,7 @@ func (m *Model) handleKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	switch key {
 	case "ctrl+c", "ctrl+d", "q":
 		persistence.SaveTracker(m.tracker)
+		persistence.SaveHistory(m.history)
 		return m, tea.Quit
 	case "tab", "shift+tab":
 		m.toggleFocus()
@@ -226,6 +246,12 @@ func (m *Model) handleKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		switch key {
 		case "enter":
 			return m.submitURL()
+		case "up":
+			m.navigateHistoryUp()
+			return m, nil
+		case "down":
+			m.navigateHistoryDown()
+			return m, nil
 		}
 		var cmd tea.Cmd
 		m.input, cmd = m.input.Update(msg)
@@ -292,6 +318,13 @@ func (m *Model) submitURL() (tea.Model, tea.Cmd) {
 		m.setStatus(err.Error(), statusError)
 		return m, nil
 	}
+
+	// Add to history (avoid duplicates of the most recent command)
+	if len(m.history) == 0 || m.history[len(m.history)-1] != value {
+		m.history = append(m.history, value)
+	}
+	m.historyIndex = len(m.history)
+	m.tempInput = ""
 
 	m.input.SetValue("")
 	m.pendingFetch = true
@@ -419,6 +452,42 @@ func (m *Model) setFocus(area focusArea) {
 	}
 }
 
+func (m *Model) navigateHistoryUp() {
+	if len(m.history) == 0 {
+		return
+	}
+
+	// Save current input if we're at the bottom
+	if m.historyIndex == len(m.history) {
+		m.tempInput = m.input.Value()
+	}
+
+	// Navigate up in history
+	if m.historyIndex > 0 {
+		m.historyIndex--
+		m.input.SetValue(m.history[m.historyIndex])
+		m.input.CursorEnd()
+	}
+}
+
+func (m *Model) navigateHistoryDown() {
+	if len(m.history) == 0 {
+		return
+	}
+
+	// Navigate down in history
+	if m.historyIndex < len(m.history) {
+		m.historyIndex++
+		if m.historyIndex == len(m.history) {
+			// Back to current input
+			m.input.SetValue(m.tempInput)
+		} else {
+			m.input.SetValue(m.history[m.historyIndex])
+		}
+		m.input.CursorEnd()
+	}
+}
+
 func (m *Model) absorbRuns(runs []githubclient.WorkflowRun, source githuburl.Parsed) tea.Cmd {
 	if len(runs) == 0 {
 		label := "No workflow runs found"
@@ -493,6 +562,9 @@ func (m *Model) refreshCmd(auto bool) tea.Cmd {
 		return nil
 	}
 	inputs := make([]refreshInput, 0, len(active))
+
+	// Collect unique PR sources to re-fetch for new workflow runs
+	prSources := make(map[string]githuburl.Parsed)
 	for _, run := range active {
 		owner, repo := splitRepo(run.Run.RepoFullName)
 		if owner == "" {
@@ -501,7 +573,16 @@ func (m *Model) refreshCmd(auto bool) tea.Cmd {
 		inputs = append(inputs, refreshInput{
 			RunID: run.Run.ID, Owner: owner, Repo: repo,
 		})
+
+		// Track PR sources to check for new runs on those PRs
+		if run.Source.Kind == githuburl.KindPullRequest {
+			key := fmt.Sprintf("%s/%s/%d", run.Source.Owner, run.Source.Repo, run.Source.PRNumber)
+			if _, exists := prSources[key]; !exists {
+				prSources[key] = run.Source
+			}
+		}
 	}
+
 	if len(inputs) == 0 {
 		if auto {
 			m.refreshing = false
@@ -516,7 +597,10 @@ func (m *Model) refreshCmd(auto bool) tea.Cmd {
 		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
 		refreshed := make([]githubclient.WorkflowRun, 0, len(inputs))
+		prRuns := make(map[githuburl.Parsed][]githubclient.WorkflowRun)
 		var errs []string
+
+		// Refresh individual workflow runs by ID
 		for _, target := range inputs {
 			run, err := client.WorkflowRunByID(ctx, target.Owner, target.Repo, target.RunID)
 			if err != nil {
@@ -525,11 +609,22 @@ func (m *Model) refreshCmd(auto bool) tea.Cmd {
 			}
 			refreshed = append(refreshed, run)
 		}
+
+		// Re-fetch PR runs to catch new workflow runs on watched PRs
+		for _, prSource := range prSources {
+			runs, err := client.RunsByPullRequest(ctx, prSource.Owner, prSource.Repo, prSource.PRNumber)
+			if err != nil {
+				errs = append(errs, fmt.Sprintf("PR %s/%s #%d: %v", prSource.Owner, prSource.Repo, prSource.PRNumber, err))
+				continue
+			}
+			prRuns[prSource] = runs
+		}
+
 		var err error
 		if len(errs) > 0 {
 			err = errors.New(strings.Join(errs, "; "))
 		}
-		return refreshResultMsg{Runs: refreshed, Err: err}
+		return refreshResultMsg{Runs: refreshed, PRRuns: prRuns, Err: err}
 	}
 }
 
@@ -561,8 +656,9 @@ func (a area) contains(y int) bool {
 type refreshTickMsg struct{}
 
 type refreshResultMsg struct {
-	Runs []githubclient.WorkflowRun
-	Err  error
+	Runs   []githubclient.WorkflowRun
+	PRRuns map[githuburl.Parsed][]githubclient.WorkflowRun // Runs fetched from PR sources
+	Err    error
 }
 
 type fetchResultMsg struct {
