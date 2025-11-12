@@ -18,19 +18,19 @@ Download the latest binary for your platform from the [releases page](https://gi
 
 ```bash
 # macOS (Apple Silicon)
-curl -L https://github.com/nateberkopec/ghwatch/releases/latest/download/gogh_darwin_arm64.tar.gz | tar xz
-sudo mv gogh /usr/local/bin/
+curl -L https://github.com/nateberkopec/ghwatch/releases/latest/download/ghwatch_darwin_arm64.tar.gz | tar xz
+sudo mv ghwatch /usr/local/bin/
 
 # macOS (Intel)
-curl -L https://github.com/nateberkopec/ghwatch/releases/latest/download/gogh_darwin_amd64.tar.gz | tar xz
-sudo mv gogh /usr/local/bin/
+curl -L https://github.com/nateberkopec/ghwatch/releases/latest/download/ghwatch_darwin_amd64.tar.gz | tar xz
+sudo mv ghwatch /usr/local/bin/
 
 # Linux (x86_64)
-curl -L https://github.com/nateberkopec/ghwatch/releases/latest/download/gogh_linux_amd64.tar.gz | tar xz
-sudo mv gogh /usr/local/bin/
+curl -L https://github.com/nateberkopec/ghwatch/releases/latest/download/ghwatch_linux_amd64.tar.gz | tar xz
+sudo mv ghwatch /usr/local/bin/
 
 # Run it
-gogh
+ghwatch
 ```
 
 ### Install from Source
@@ -38,7 +38,7 @@ gogh
 If you have Go 1.25+ installed:
 
 ```bash
-go install github.com/nateberkopec/ghwatch/cmd/gogh@latest
+go install github.com/nateberkopec/ghwatch/cmd/ghwatch@latest
 ```
 
 Or build from the repository:
@@ -46,8 +46,8 @@ Or build from the repository:
 ```bash
 git clone https://github.com/nateberkopec/ghwatch.git
 cd ghwatch
-go build -o gogh ./cmd/gogh
-./gogh
+go build -o ghwatch ./cmd/ghwatch
+./ghwatch
 ```
 
 Paste any of the following into the bottom input field:

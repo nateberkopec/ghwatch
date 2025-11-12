@@ -8,9 +8,9 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/nateberkopec/2025-11-07-gogh/internal/githubclient"
-	"github.com/nateberkopec/2025-11-07-gogh/internal/githuburl"
-	"github.com/nateberkopec/2025-11-07-gogh/internal/watch"
+	"github.com/nateberkopec/ghwatch/internal/githubclient"
+	"github.com/nateberkopec/ghwatch/internal/githuburl"
+	"github.com/nateberkopec/ghwatch/internal/watch"
 )
 
 type trackedRunData struct {
@@ -42,7 +42,7 @@ func dataDir() (string, error) {
 		xdgData = filepath.Join(home, ".local", "share")
 	}
 
-	dir := filepath.Join(xdgData, "gogh")
+	dir := filepath.Join(xdgData, "ghwatch")
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		return "", fmt.Errorf("failed to create data directory: %w", err)
 	}

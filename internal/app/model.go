@@ -13,10 +13,10 @@ import (
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 
-	"github.com/nateberkopec/2025-11-07-gogh/internal/githubclient"
-	"github.com/nateberkopec/2025-11-07-gogh/internal/githuburl"
-	"github.com/nateberkopec/2025-11-07-gogh/internal/persistence"
-	"github.com/nateberkopec/2025-11-07-gogh/internal/watch"
+	"github.com/nateberkopec/ghwatch/internal/githubclient"
+	"github.com/nateberkopec/ghwatch/internal/githuburl"
+	"github.com/nateberkopec/ghwatch/internal/persistence"
+	"github.com/nateberkopec/ghwatch/internal/watch"
 )
 
 // githubAPI captures the subset of client functionality the model needs. This

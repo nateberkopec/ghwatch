@@ -5,9 +5,9 @@ before:
     - go mod tidy
 
 builds:
-  - id: gogh
-    binary: gogh
-    main: ./cmd/gogh
+  - id: ghwatch
+    binary: ghwatch
+    main: ./cmd/ghwatch
     env:
       - CGO_ENABLED=0
     goos:
@@ -68,29 +68,29 @@ release:
 
     ```bash
     # Intel
-    curl -L https://github.com/nateberkopec/ghwatch/releases/download/{{ .Tag }}/gogh_{{ .Version }}_darwin_amd64.tar.gz | tar xz
-    sudo mv gogh /usr/local/bin/
+    curl -L https://github.com/nateberkopec/ghwatch/releases/download/{{ .Tag }}/ghwatch_{{ .Version }}_darwin_amd64.tar.gz | tar xz
+    sudo mv ghwatch /usr/local/bin/
 
     # Apple Silicon
-    curl -L https://github.com/nateberkopec/ghwatch/releases/download/{{ .Tag }}/gogh_{{ .Version }}_darwin_arm64.tar.gz | tar xz
-    sudo mv gogh /usr/local/bin/
+    curl -L https://github.com/nateberkopec/ghwatch/releases/download/{{ .Tag }}/ghwatch_{{ .Version }}_darwin_arm64.tar.gz | tar xz
+    sudo mv ghwatch /usr/local/bin/
     ```
 
     ### Linux
 
     ```bash
     # x86_64
-    curl -L https://github.com/nateberkopec/ghwatch/releases/download/{{ .Tag }}/gogh_{{ .Version }}_linux_amd64.tar.gz | tar xz
-    sudo mv gogh /usr/local/bin/
+    curl -L https://github.com/nateberkopec/ghwatch/releases/download/{{ .Tag }}/ghwatch_{{ .Version }}_linux_amd64.tar.gz | tar xz
+    sudo mv ghwatch /usr/local/bin/
 
     # ARM64
-    curl -L https://github.com/nateberkopec/ghwatch/releases/download/{{ .Tag }}/gogh_{{ .Version }}_linux_arm64.tar.gz | tar xz
-    sudo mv gogh /usr/local/bin/
+    curl -L https://github.com/nateberkopec/ghwatch/releases/download/{{ .Tag }}/ghwatch_{{ .Version }}_linux_arm64.tar.gz | tar xz
+    sudo mv ghwatch /usr/local/bin/
     ```
 
     ### Windows
 
-    Download the `.zip` file for your architecture and extract the `gogh.exe` binary.
+    Download the `.zip` file for your architecture and extract the `ghwatch.exe` binary.
 
   footer: |
     ## Checksums

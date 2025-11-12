@@ -32,7 +32,7 @@ the GitHub Workflow Watcher is structured and how to extend it safely.
 
 | Path                            | Purpose |
 | --------------------------------| ------- |
-| `cmd/gogh`                      | CLI entry point (`go run ./cmd/gogh`) |
+| `cmd/ghwatch`                      | CLI entry point (`go run ./cmd/ghwatch`) |
 | `internal/app`                  | Bubble Tea model/view logic |
 | `internal/watch`                | Run tracker (active vs archived, status-change detection) |
 | `internal/githuburl`            | URL parsing for commits/PRs/run IDs |

@@ -7,8 +7,8 @@ import (
 
 	"github.com/charmbracelet/lipgloss"
 
-	"github.com/nateberkopec/2025-11-07-gogh/internal/githubclient"
-	"github.com/nateberkopec/2025-11-07-gogh/internal/watch"
+	"github.com/nateberkopec/ghwatch/internal/githubclient"
+	"github.com/nateberkopec/ghwatch/internal/watch"
 )
 
 var (

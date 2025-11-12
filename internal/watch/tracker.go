@@ -4,8 +4,8 @@ import (
 	"slices"
 	"time"
 
-	"github.com/nateberkopec/2025-11-07-gogh/internal/githubclient"
-	"github.com/nateberkopec/2025-11-07-gogh/internal/githuburl"
+	"github.com/nateberkopec/ghwatch/internal/githubclient"
+	"github.com/nateberkopec/ghwatch/internal/githuburl"
 )
 
 // Tracker keeps the catalog of workflow runs that the UI renders.

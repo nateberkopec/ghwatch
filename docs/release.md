@@ -1,6 +1,6 @@
 # Release Process
 
-This document describes how to create a new release of `gogh`.
+This document describes how to create a new release of `ghwatch`.
 
 ## Prerequisites
 
@@ -64,8 +64,8 @@ Once the workflow completes:
 
 ```bash
 # Example for macOS ARM64
-curl -L https://github.com/nateberkopec/ghwatch/releases/download/v1.0.0/gogh_1.0.0_darwin_arm64.tar.gz | tar xz
-./gogh --help
+curl -L https://github.com/nateberkopec/ghwatch/releases/download/v1.0.0/ghwatch_1.0.0_darwin_arm64.tar.gz | tar xz
+./ghwatch --help
 ```
 
 ## Supported Platforms
@@ -137,7 +137,7 @@ var (
 )
 
 func main() {
-    fmt.Printf("gogh %s (commit: %s, built: %s)\n", version, commit, date)
+    fmt.Printf("ghwatch %s (commit: %s, built: %s)\n", version, commit, date)
     // ...
 }
 ```

@@ -6,9 +6,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/nateberkopec/2025-11-07-gogh/internal/githubclient"
-	"github.com/nateberkopec/2025-11-07-gogh/internal/githuburl"
-	"github.com/nateberkopec/2025-11-07-gogh/internal/watch"
+	"github.com/nateberkopec/ghwatch/internal/githubclient"
+	"github.com/nateberkopec/ghwatch/internal/githuburl"
+	"github.com/nateberkopec/ghwatch/internal/watch"
 )
 
 func TestSaveLoadRoundTrip(t *testing.T) {
@@ -163,7 +163,7 @@ func TestStatePath(t *testing.T) {
 		t.Fatalf("statePath failed: %v", err)
 	}
 
-	expectedPath := filepath.Join(tmpDir, "gogh", "runs.json")
+	expectedPath := filepath.Join(tmpDir, "ghwatch", "runs.json")
 	if path != expectedPath {
 		t.Errorf("expected path %s, got %s", expectedPath, path)
 	}

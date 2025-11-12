@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/nateberkopec/2025-11-07-gogh/internal/githubclient"
-	"github.com/nateberkopec/2025-11-07-gogh/internal/githuburl"
+	"github.com/nateberkopec/ghwatch/internal/githubclient"
+	"github.com/nateberkopec/ghwatch/internal/githuburl"
 )
 
 func TestTrackerUpsertAndArchive(t *testing.T) {

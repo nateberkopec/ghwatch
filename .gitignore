@@ -1,8 +1,11 @@
 .env
 
 # Binaries
-gogh
-gogh.exe
+ghwatch
+ghwatch.exe
 
 # GoReleaser
 dist/
+
+# Claude
+.claude/

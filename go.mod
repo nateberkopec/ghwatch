@@ -1,4 +1,4 @@
-module github.com/nateberkopec/2025-11-07-gogh
+module github.com/nateberkopec/ghwatch
 
 go 1.25
 

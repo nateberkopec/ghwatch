@@ -192,7 +192,7 @@ func (c *Client) newRequest(ctx context.Context, resource string, query map[stri
 	}
 
 	req.Header.Set("Accept", "application/vnd.github+json")
-	req.Header.Set("User-Agent", "gogh-watcher")
+	req.Header.Set("User-Agent", "ghwatch")
 	if c.token != "" {
 		req.Header.Set("Authorization", "Bearer "+c.token)
 	}

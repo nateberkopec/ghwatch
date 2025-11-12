@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/nateberkopec/2025-11-07-gogh/internal/githubclient"
+	"github.com/nateberkopec/ghwatch/internal/githubclient"
 )
 
 func TestGitHubClientRunsByCommit(t *testing.T) {
@@ -79,7 +79,7 @@ func requestJSON(t *testing.T, url string, v any) {
 		t.Fatalf("failed to build request: %v", err)
 	}
 	req.Header.Set("Accept", "application/vnd.github+json")
-	req.Header.Set("User-Agent", "gogh-watcher-tests")
+	req.Header.Set("User-Agent", "ghwatch-tests")
 
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
