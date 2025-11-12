@@ -163,7 +163,15 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if msg.Err != nil {
 			m.setStatus(msg.Err.Error(), statusError)
 		}
+		// Absorb individual run refreshes (preserve existing sources)
 		cmd := m.absorbRuns(msg.Runs, githuburl.Parsed{})
+		// Absorb PR runs with their respective sources (for new runs)
+		for prSource, runs := range msg.PRRuns {
+			prCmd := m.absorbRuns(runs, prSource)
+			if prCmd != nil {
+				cmd = tea.Batch(cmd, prCmd)
+			}
+		}
 		return m, cmd
 	}
 
@@ -493,6 +501,9 @@ func (m *Model) refreshCmd(auto bool) tea.Cmd {
 		return nil
 	}
 	inputs := make([]refreshInput, 0, len(active))
+
+	// Collect unique PR sources to re-fetch for new workflow runs
+	prSources := make(map[string]githuburl.Parsed)
 	for _, run := range active {
 		owner, repo := splitRepo(run.Run.RepoFullName)
 		if owner == "" {
@@ -501,7 +512,16 @@ func (m *Model) refreshCmd(auto bool) tea.Cmd {
 		inputs = append(inputs, refreshInput{
 			RunID: run.Run.ID, Owner: owner, Repo: repo,
 		})
+
+		// Track PR sources to check for new runs on those PRs
+		if run.Source.Kind == githuburl.KindPullRequest {
+			key := fmt.Sprintf("%s/%s/%d", run.Source.Owner, run.Source.Repo, run.Source.PRNumber)
+			if _, exists := prSources[key]; !exists {
+				prSources[key] = run.Source
+			}
+		}
 	}
+
 	if len(inputs) == 0 {
 		if auto {
 			m.refreshing = false
@@ -516,7 +536,10 @@ func (m *Model) refreshCmd(auto bool) tea.Cmd {
 		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
 		refreshed := make([]githubclient.WorkflowRun, 0, len(inputs))
+		prRuns := make(map[githuburl.Parsed][]githubclient.WorkflowRun)
 		var errs []string
+
+		// Refresh individual workflow runs by ID
 		for _, target := range inputs {
 			run, err := client.WorkflowRunByID(ctx, target.Owner, target.Repo, target.RunID)
 			if err != nil {
@@ -525,11 +548,22 @@ func (m *Model) refreshCmd(auto bool) tea.Cmd {
 			}
 			refreshed = append(refreshed, run)
 		}
+
+		// Re-fetch PR runs to catch new workflow runs on watched PRs
+		for _, prSource := range prSources {
+			runs, err := client.RunsByPullRequest(ctx, prSource.Owner, prSource.Repo, prSource.PRNumber)
+			if err != nil {
+				errs = append(errs, fmt.Sprintf("PR %s/%s #%d: %v", prSource.Owner, prSource.Repo, prSource.PRNumber, err))
+				continue
+			}
+			prRuns[prSource] = runs
+		}
+
 		var err error
 		if len(errs) > 0 {
 			err = errors.New(strings.Join(errs, "; "))
 		}
-		return refreshResultMsg{Runs: refreshed, Err: err}
+		return refreshResultMsg{Runs: refreshed, PRRuns: prRuns, Err: err}
 	}
 }
 
@@ -561,8 +595,9 @@ func (a area) contains(y int) bool {
 type refreshTickMsg struct{}
 
 type refreshResultMsg struct {
-	Runs []githubclient.WorkflowRun
-	Err  error
+	Runs   []githubclient.WorkflowRun
+	PRRuns map[githuburl.Parsed][]githubclient.WorkflowRun // Runs fetched from PR sources
+	Err    error
 }
 
 type fetchResultMsg struct {

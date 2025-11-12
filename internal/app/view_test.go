@@ -13,6 +13,10 @@ import (
 )
 
 func TestViewSnapshot(t *testing.T) {
+	// Use a temporary directory to avoid loading persisted state
+	tmpDir := t.TempDir()
+	t.Setenv("XDG_DATA_HOME", tmpDir)
+
 	client := stubGitHubClient{}
 	m := New(Config{
 		Client:       client,
