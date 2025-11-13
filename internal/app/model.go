@@ -301,6 +301,11 @@ func (m *Model) handleKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		} else {
 			m.setStatus("Bell muted", statusNeutral)
 		}
+	case "B":
+		// Debug: test notification
+		m.setStatus("DEBUG: Notification triggered!", statusSuccess)
+		notify("ghwatch", "Test notification")
+		return m, nil
 	}
 
 	return m, nil
@@ -499,6 +504,7 @@ func (m *Model) absorbRuns(runs []githubclient.WorkflowRun, source githuburl.Par
 	}
 	shouldRing := false
 	added := false
+	var changedRun *githubclient.WorkflowRun
 	for _, run := range runs {
 		isNew, changed := m.tracker.Upsert(run, source)
 		if isNew {
@@ -506,6 +512,7 @@ func (m *Model) absorbRuns(runs []githubclient.WorkflowRun, source githuburl.Par
 		}
 		if changed {
 			shouldRing = true
+			changedRun = &run
 		}
 	}
 	if added {
@@ -514,8 +521,17 @@ func (m *Model) absorbRuns(runs []githubclient.WorkflowRun, source githuburl.Par
 		persistence.SaveTracker(m.tracker)
 		m.setStatus(fmt.Sprintf("Watching %d run(s)", len(runs)), statusSuccess)
 	}
-	if shouldRing && m.bellEnabled {
-		return tea.Printf("\a")
+	if shouldRing && m.bellEnabled && changedRun != nil {
+		statusText := "completed"
+		switch changedRun.Status {
+		case githubclient.RunStatusSuccess:
+			statusText = "succeeded"
+		case githubclient.RunStatusFailed:
+			statusText = "failed"
+		}
+		title := fmt.Sprintf("%s", changedRun.RepoFullName)
+		message := fmt.Sprintf("%s %s", changedRun.WorkflowName, statusText)
+		notify(title, message)
 	}
 	return nil
 }
@@ -525,23 +541,23 @@ func (m *Model) configureLayout() {
 		return
 	}
 	const (
-		titleHeight  = 1
-		statusHeight = 2
 		inputHeight  = 3
+		helpHeight   = 1
+		statusHeight = 1
 	)
-	listHeight := m.height - (titleHeight + statusHeight + inputHeight)
+	listHeight := m.height - (inputHeight + helpHeight + statusHeight)
 	if listHeight < 5 {
 		listHeight = 5
 	}
-	m.listArea = area{
-		top:    titleHeight,
-		height: listHeight,
-	}
 	m.inputArea = area{
-		top:    m.height - inputHeight,
+		top:    0,
 		height: inputHeight,
 	}
-	m.input.Width = max(10, m.width-2)
+	m.listArea = area{
+		top:    inputHeight + helpHeight,
+		height: listHeight,
+	}
+	m.input.Width = max(10, m.width-5) // Account for border + padding + margins
 }
 
 func (m *Model) scheduleRefresh() tea.Cmd {

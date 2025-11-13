@@ -53,10 +53,10 @@ func renderView(m *Model) string {
 	}
 
 	var out []string
-	out = append(out, renderRunsTable(m))
-	statusLines := renderStatusArea(m)
-	out = append(out, statusLines...)
 	out = append(out, renderInputField(m))
+	out = append(out, renderHelpText(m))
+	out = append(out, renderRunsTable(m))
+	out = append(out, renderStatusLine(m))
 
 	return strings.Join(out, "\n")
 }
@@ -114,7 +114,12 @@ func renderRunsTable(m *Model) string {
 	return builder.String()
 }
 
-func renderStatusArea(m *Model) []string {
+func renderHelpText(m *Model) string {
+	help := "[tab] focus • [o] open • [a] archive/restore • [A] view archived • [b] bell • [q] quit"
+	return helpStyle.Width(m.width).Render(pad(help, m.width))
+}
+
+func renderStatusLine(m *Model) string {
 	msg := m.status.text
 	if msg == "" && m.pendingFetch {
 		msg = "Fetching workflow runs…"
@@ -129,7 +134,7 @@ func renderStatusArea(m *Model) []string {
 	}
 
 	if m.refreshing {
-		refreshLabel := fmt.Sprintf("%s auto-refresh", m.spin.View())
+		refreshLabel := fmt.Sprintf("auto-refresh %s", m.spin.View())
 		if msg == "" {
 			msg = refreshLabel
 		} else {
@@ -137,20 +142,15 @@ func renderStatusArea(m *Model) []string {
 		}
 	}
 
-	line1 := style.Width(m.width).Render(pad(msg, m.width))
-
-	help := "[tab] focus • [o] open • [a] archive/restore • [A] view archived • [b] bell • [q] quit"
-	line2 := helpStyle.Width(m.width).Render(pad(help, m.width))
-
-	return []string{line1, line2}
+	return style.Width(m.width).Render(pad(msg, m.width))
 }
 
 func renderInputField(m *Model) string {
 	view := m.input.View()
 	if m.focus == focusInput {
-		return inputFocusedStyle.Width(m.width).Render(view)
+		return inputFocusedStyle.Render(view)
 	}
-	return inputStyle.Width(m.width).Render(view)
+	return inputStyle.Render(view)
 }
 
 func tableHeaders() []string {
@@ -188,18 +188,27 @@ func formatStatus(run githubclient.WorkflowRun) string {
 }
 
 func renderRow(cells []string, widths []int, style lipgloss.Style) string {
-	parts := make([]string, len(cells))
+	// Only include columns with non-zero widths
+	var parts []string
+	visibleCols := 0
 	for i, cell := range cells {
-		cell = truncate(cell, widths[i])
-		parts[i] = lipgloss.NewStyle().Width(widths[i]).Render(cell)
+		if widths[i] > 0 {
+			cell = truncate(cell, widths[i])
+			parts = append(parts, lipgloss.NewStyle().Width(widths[i]).Render(cell))
+			visibleCols++
+		}
 	}
 	row := strings.Join(parts, tableGap)
 	rowWidth := lipgloss.Width(row)
 	target := 0
 	for _, w := range widths {
-		target += w
+		if w > 0 {
+			target += w
+		}
 	}
-	target += (len(cells) - 1) * lipgloss.Width(tableGap)
+	if visibleCols > 0 {
+		target += (visibleCols - 1) * lipgloss.Width(tableGap)
+	}
 	if rowWidth < target {
 		row += strings.Repeat(" ", target-rowWidth)
 	}
@@ -210,47 +219,69 @@ func calculateColumnWidths(total int) []int {
 	if total <= 0 {
 		total = 80
 	}
-	gaps := len(tableColumns) - 1
-	gapWidth := lipgloss.Width(tableGap)
-	available := total - gaps*gapWidth
-	if available < len(tableColumns) {
-		available = len(tableColumns)
-	}
-
-	// Calculate minimum required width
-	minRequired := 0
-	for _, col := range tableColumns {
-		minRequired += col.Min
-	}
 
 	widths := make([]int, len(tableColumns))
 
-	// If available space is less than minimum required, use minimum of 1 per column
-	if available < minRequired {
-		for i := range widths {
-			widths[i] = 1
+	// Try to fit as many columns as possible, starting from the left
+	// Drop columns from the right when space is insufficient
+	for numCols := len(tableColumns); numCols >= 1; numCols-- {
+		gaps := numCols - 1
+		gapWidth := lipgloss.Width(tableGap)
+		available := total - gaps*gapWidth
+		if available < numCols {
+			continue // Not even enough for 1 char per column
 		}
-		return widths
+
+		// Calculate minimum required and total weight for visible columns
+		minRequired := 0
+		totalWeight := 0.0
+		for i := 0; i < numCols; i++ {
+			minRequired += tableColumns[i].Min
+			totalWeight += tableColumns[i].Weight
+		}
+
+		// If we can fit these columns with their minimums, calculate their widths
+		if available >= minRequired {
+			// Calculate widths using weighted distribution
+			sum := 0
+			for i := 0; i < numCols; i++ {
+				col := tableColumns[i]
+				// Normalize weight based on visible columns only
+				normalizedWeight := col.Weight / totalWeight
+				width := int(float64(available) * normalizedWeight)
+				if width < col.Min {
+					width = col.Min
+				}
+				widths[i] = width
+				sum += width
+			}
+
+			// Adjust to match available width
+			diff := available - sum
+			if diff > 0 {
+				widths[numCols-1] += diff
+			}
+
+			// Ensure no column is less than 1
+			for i := 0; i < numCols; i++ {
+				if widths[i] < 1 {
+					widths[i] = 1
+				}
+			}
+
+			// Set remaining columns to 0 (hidden)
+			for i := numCols; i < len(tableColumns); i++ {
+				widths[i] = 0
+			}
+
+			return widths
+		}
 	}
 
-	sum := 0
-	for i, col := range tableColumns {
-		width := int(float64(available) * col.Weight)
-		if width < col.Min {
-			width = col.Min
-		}
-		widths[i] = width
-		sum += width
-	}
-	// Adjust to match available width.
-	diff := available - sum
-	if diff > 0 {
-		widths[len(widths)-1] += diff
-	}
-	for i, w := range widths {
-		if w < 1 {
-			widths[i] = 1
-		}
+	// If we can't even fit one column with its minimum, just show first column
+	widths[0] = max(1, total)
+	for i := 1; i < len(widths); i++ {
+		widths[i] = 0
 	}
 	return widths
 }
