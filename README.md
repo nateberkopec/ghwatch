@@ -5,10 +5,11 @@
 </p>
 
 Bubble Tea TUI for keeping an eye on GitHub Actions runs. Paste a PR, commit, or
-workflow-run URL at the bottom of the screen and the run instantly appears in the
+workflow-run URL and the run instantly appears in the
 table with live status updates.
 
-<img width="2022" height="1179" alt="Screenshot 2025-11-12 at 10 35 54" src="https://github.com/user-attachments/assets/682d8a8e-f511-47cd-a004-f19b36ecb42d" />
+<img width="1988" height="1135" alt="Screenshot 2025-11-13 at 14 15 50" src="https://github.com/user-attachments/assets/caec575e-0b70-4130-b7f7-bffa29cf5b2b" />
+
 
 ## Requirements
 
@@ -71,7 +72,6 @@ Runs are read-only and fetched directly from the public GitHub REST API.
 | `tab`          | Toggle focus between run list and input       |
 | `j` / `down`   | Move selection down                           |
 | `k` / `up`     | Move selection up                             |
-| `pgdn` / `pgup`| Page through the list                         |
 | `enter` / `o`  | Open PR/run URL (`open`/`xdg-open`)           |
 | `a`            | Archive (active view) / restore (archive view)|
 | `A`            | Toggle active vs archived runs                |
