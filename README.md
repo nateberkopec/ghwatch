@@ -26,18 +26,32 @@ Download the latest binary for your platform from the [releases page](https://gi
 ```bash
 # macOS (Apple Silicon)
 curl -L https://github.com/nateberkopec/ghwatch/releases/latest/download/ghwatch_darwin_arm64.tar.gz | tar xz
-sudo mv ghwatch /usr/local/bin/
+mkdir -p ~/.local/bin
+mv ghwatch ~/.local/bin/
 
 # macOS (Intel)
 curl -L https://github.com/nateberkopec/ghwatch/releases/latest/download/ghwatch_darwin_amd64.tar.gz | tar xz
-sudo mv ghwatch /usr/local/bin/
+mkdir -p ~/.local/bin
+mv ghwatch ~/.local/bin/
 
 # Linux (x86_64)
 curl -L https://github.com/nateberkopec/ghwatch/releases/latest/download/ghwatch_linux_amd64.tar.gz | tar xz
-sudo mv ghwatch /usr/local/bin/
+mkdir -p ~/.local/bin
+mv ghwatch ~/.local/bin/
+
+# Add to PATH if needed (bash/zsh)
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
+
+# Or for fish shell
+echo 'fish_add_path ~/.local/bin' >> ~/.config/fish/config.fish
 
 # Run it
 ghwatch
+```
+
+For system-wide installation, you can use `/usr/local/bin` instead (requires sudo):
+```bash
+sudo install -m 755 ghwatch /usr/local/bin/
 ```
 
 ### Install from Source

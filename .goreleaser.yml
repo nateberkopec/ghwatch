@@ -69,11 +69,22 @@ release:
     ```bash
     # Intel
     curl -L https://github.com/nateberkopec/ghwatch/releases/download/{{ .Tag }}/ghwatch_{{ .Version }}_darwin_amd64.tar.gz | tar xz
-    sudo mv ghwatch /usr/local/bin/
+    mkdir -p ~/.local/bin
+    mv ghwatch ~/.local/bin/
 
     # Apple Silicon
     curl -L https://github.com/nateberkopec/ghwatch/releases/download/{{ .Tag }}/ghwatch_{{ .Version }}_darwin_arm64.tar.gz | tar xz
-    sudo mv ghwatch /usr/local/bin/
+    mkdir -p ~/.local/bin
+    mv ghwatch ~/.local/bin/
+    ```
+
+    Add to PATH if needed:
+    ```bash
+    # bash/zsh
+    echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
+
+    # fish
+    echo 'fish_add_path ~/.local/bin' >> ~/.config/fish/config.fish
     ```
 
     ### Linux
@@ -81,16 +92,30 @@ release:
     ```bash
     # x86_64
     curl -L https://github.com/nateberkopec/ghwatch/releases/download/{{ .Tag }}/ghwatch_{{ .Version }}_linux_amd64.tar.gz | tar xz
-    sudo mv ghwatch /usr/local/bin/
+    mkdir -p ~/.local/bin
+    mv ghwatch ~/.local/bin/
 
     # ARM64
     curl -L https://github.com/nateberkopec/ghwatch/releases/download/{{ .Tag }}/ghwatch_{{ .Version }}_linux_arm64.tar.gz | tar xz
-    sudo mv ghwatch /usr/local/bin/
+    mkdir -p ~/.local/bin
+    mv ghwatch ~/.local/bin/
+    ```
+
+    Add to PATH if needed:
+    ```bash
+    echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
+    ```
+
+    ### System-wide Installation
+
+    For system-wide installation (requires sudo):
+    ```bash
+    sudo install -m 755 ghwatch /usr/local/bin/
     ```
 
     ### Windows
 
-    Download the `.zip` file for your architecture and extract the `ghwatch.exe` binary.
+    Download the `.zip` file for your architecture and extract the `ghwatch.exe` binary to a directory in your PATH.
 
   footer: |
     ## Checksums
