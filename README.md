@@ -1,6 +1,8 @@
 # ghwatch
 
+<p align="center">
 ![watcher-glitch](https://github.com/user-attachments/assets/766f41e7-b767-46d0-bdf8-8ee2b79f5fd6)
+</p>
 
 Bubble Tea TUI for keeping an eye on GitHub Actions runs. Paste a PR, commit, or
 workflow-run URL at the bottom of the screen and the run instantly appears in the
