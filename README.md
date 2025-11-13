@@ -1,8 +1,12 @@
-# GitHub Workflow Watcher
+# ghwatch
+
+![watcher-glitch](https://github.com/user-attachments/assets/766f41e7-b767-46d0-bdf8-8ee2b79f5fd6)
 
 Bubble Tea TUI for keeping an eye on GitHub Actions runs. Paste a PR, commit, or
 workflow-run URL at the bottom of the screen and the run instantly appears in the
 table with live status updates.
+
+<img width="2022" height="1179" alt="Screenshot 2025-11-12 at 10 35 54" src="https://github.com/user-attachments/assets/682d8a8e-f511-47cd-a004-f19b36ecb42d" />
 
 ## Requirements
 
