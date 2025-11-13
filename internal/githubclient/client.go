@@ -78,6 +78,17 @@ func firstNonEmpty(values ...string) string {
 	return ""
 }
 
+func tokenSuffix(token string) string {
+	token = strings.TrimSpace(token)
+	if token == "" {
+		return ""
+	}
+	if len(token) <= 4 {
+		return token
+	}
+	return token[len(token)-4:]
+}
+
 // WorkflowRunByID fetches a single workflow run.
 func (c *Client) WorkflowRunByID(ctx context.Context, owner, repo string, runID int64) (WorkflowRun, error) {
 	var payload workflowRunPayload
@@ -164,6 +175,16 @@ func (c *Client) getJSON(ctx context.Context, path string, query map[string]stri
 	if res.StatusCode >= 400 {
 		body, _ := io.ReadAll(io.LimitReader(res.Body, 4<<10))
 		msg := strings.TrimSpace(string(body))
+		if res.StatusCode == http.StatusUnauthorized {
+			authMsg := "GitHub authentication failed"
+			if msg != "" {
+				authMsg = fmt.Sprintf("%s: %s", authMsg, msg)
+			}
+			if suffix := tokenSuffix(c.token); suffix != "" {
+				authMsg = fmt.Sprintf("%s. Token: %s", authMsg, suffix)
+			}
+			return fmt.Errorf("%w: %s", ErrUnauthorized, authMsg)
+		}
 		if res.StatusCode == http.StatusNotFound {
 			return fmt.Errorf("%w: %s", ErrNotFound, msg)
 		}
@@ -352,4 +373,8 @@ type pullRequestPayload struct {
 }
 
 // ErrNotFound can be returned when GitHub responds with 404.
-var ErrNotFound = errors.New("resource not found")
+// ErrUnauthorized indicates GitHub rejected the supplied token (401).
+var (
+	ErrNotFound     = errors.New("resource not found")
+	ErrUnauthorized = errors.New("authentication failed")
+)

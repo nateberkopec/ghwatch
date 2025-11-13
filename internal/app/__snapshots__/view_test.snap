@@ -1,5 +1,9 @@
 
 [TestViewSnapshot - 1]
+╭────────────────────────────────────────────────────────────────────────────────────────╮
+│ Paste a GitHub workflow/run URL                                                        │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+[tab] focus • [o] open • [a] archive/restore • [A] view archived • [b] bell • [q] quit    
     │ Repo            │ Owner       │ Target        │ Run              │ Workflow         
 ✅  │ web             │ example     │ main          │ lint             │ CI               
 ⏳  │ api             │ example     │ PR #12        │ unit             │ CI               
@@ -18,9 +22,6 @@
                                                                                           
                                                                                           
                                                                                           
+                                                                                          
 Watching 2 run(s)                                                                         
-[tab] focus • [o] open • [a] archive/restore • [A] view archived • [b] bell • [q] quit    
-╭──────────────────────────────────────────────────────────────────────────────────────────╮
-│ Paste a GitHub workflow/run URL                                                          │
-╰──────────────────────────────────────────────────────────────────────────────────────────╯
 ---
